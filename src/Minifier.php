@@ -1,34 +1,31 @@
 <?php
 
-namespace Middlewares;
+namespace Interop\Http\Message\Strategies\Examples\Minifier;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\Factory\StreamFactoryInterface;
+use Interop\Http\Message\Strategies\ResponseOperatorInterface;
 use Middlewares\Utils\Helpers;
+use Psr\Http\Message\ResponseInterface;
 
-abstract class Minifier
+abstract class Minifier implements ResponseOperatorInterface
 {
     /**
      * @var string
      */
     protected $mimetype;
 
-    /**
-     * Process a server request and return a response.
-     *
-     * @param ServerRequestInterface $request
-     * @param DelegateInterface      $delegate
-     *
-     * @return ResponseInterface
-     */
-    public function process(ServerRequestInterface $request, DelegateInterface $delegate)
-    {
-        $response = $delegate->process($request);
+    protected $streamFactory;
 
+    public function __construct(StreamFactoryInterface $streamFactory)
+    {
+        $this->streamFactory = $streamFactory;
+    }
+
+    public function __invoke(ResponseInterface $response)
+    {
         if (stripos($response->getHeaderLine('Content-Type'), $this->mimetype) === 0) {
-            $stream = Utils\Factory::createStream();
-            $stream->write($this->minify((string) $response->getBody()));
+            $minified = $this->minify((string) $response->getBody());
+            $stream = $this->streamFactory->createStream($minified);
 
             $response = $response->withBody($stream);
 

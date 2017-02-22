@@ -1,11 +1,10 @@
 <?php
 
-namespace Middlewares;
+namespace Interop\Http\Message\Strategies\Examples\Minifier;
 
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Minify_CSS;
 
-class CssMinifier extends Minifier implements MiddlewareInterface
+class CssMinifier extends Minifier
 {
     /**
      * @var string

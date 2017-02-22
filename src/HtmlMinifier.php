@@ -1,13 +1,12 @@
 <?php
 
-namespace Middlewares;
+namespace Interop\Http\Message\Strategies\Examples\Minifier;
 
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Minify_HTML;
 use Minify_CSS;
 use JSMin;
 
-class HtmlMinifier extends Minifier implements MiddlewareInterface
+class HtmlMinifier extends Minifier
 {
     /**
      * @var bool

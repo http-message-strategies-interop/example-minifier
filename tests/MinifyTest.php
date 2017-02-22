@@ -1,12 +1,13 @@
 <?php
 
-namespace Middlewares\Tests;
+namespace Interop\Http\Message\Strategies\Examples\Minifier\Tests;
 
-use Middlewares\HtmlMinifier;
-use Middlewares\CssMinifier;
-use Middlewares\JsMinifier;
-use Middlewares\Utils\Dispatcher;
-use Middlewares\Utils\Factory;
+use Interop\Http\Message\Strategies\Examples\Minifier\Tests\Helpers\StreamFactory;
+use Psr\Http\Message\ResponseInterface;
+use Interop\Http\Message\Strategies\Examples\Minifier\HtmlMinifier;
+use Interop\Http\Message\Strategies\Examples\Minifier\CssMinifier;
+use Interop\Http\Message\Strategies\Examples\Minifier\JsMinifier;
+use Zend\Diactoros\Response;
 
 class MinifierTest extends \PHPUnit_Framework_TestCase
 {
@@ -38,18 +39,19 @@ class MinifierTest extends \PHPUnit_Framework_TestCase
      */
     public function testMinifier($mime, $content, $expected)
     {
-        $response = Dispatcher::run([
-            new CssMinifier(),
-            new JsMinifier(),
-            new HtmlMinifier(),
-            function () use ($mime, $content) {
-                $response = Factory::createResponse();
-                $response->getBody()->write($content);
+        $streamFactory = new StreamFactory();
+        $response = (new Response())->withHeader('Content-Type', $mime);
+        $response->getBody()->write($content);
 
-                return $response->withHeader('Content-Type', $mime);
-            },
-        ]);
+        foreach ([
+            new CssMinifier($streamFactory),
+            new JsMinifier($streamFactory),
+            new HtmlMinifier($streamFactory),
+        ] as $minifier) {
+            $response = $minifier($response);
+        }
 
+        $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals($expected, (string) $response->getBody());
         $this->assertEquals($response->getBody()->getSize(), $response->getHeaderLine('Content-Length'));
     }

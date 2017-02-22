@@ -1,11 +1,10 @@
 <?php
 
-namespace Middlewares;
+namespace Interop\Http\Message\Strategies\Examples\Minifier;
 
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use JSMin;
 
-class JsMinifier extends Minifier implements MiddlewareInterface
+class JsMinifier extends Minifier
 {
     /**
      * @var string
